@@ -69,7 +69,7 @@ a{color:var(--brand)}
       <div><label for="hora">Hora</label><input type="time" id="hora"></div>
     </div>
     <div class="grid2">
-      <div><label>Operario</label><div class="seg" id="ops"></div></div>
+      <div><label for="tec">Técnico (iniciales)</label><input type="text" id="tec" maxlength="4" autocapitalize="characters" autocomplete="off" placeholder="Ej.: CH" style="text-transform:uppercase"></div>
       <div><label>Ronda</label><div class="seg" id="ronda"><button data-v="AM">AM</button><button data-v="PM">PM</button></div></div>
     </div>
   </div>
@@ -140,14 +140,10 @@ function initHeader(){
   $("#fecha").value = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
   $("#hora").value = pad(d.getHours())+":"+pad(d.getMinutes());
   setRonda(d.getHours() < 12 ? "AM" : "PM");
-  var ops = $("#ops"); ops.innerHTML = "";
-  cfg.operarios.filter(function(o){return +o.activo!==0}).forEach(function(o){
-    var b = document.createElement("button"); b.textContent = o.codigo; b.title = o.nombre; b.type="button";
-    b.onclick = function(){ state.op = o.codigo; localStorage.setItem("palace_op", o.codigo); [].forEach.call(ops.children,function(c){c.classList.toggle("on", c===b)}); };
-    ops.appendChild(b);
-  });
-  var last = localStorage.getItem("palace_op");
-  var lb = [].find.call(ops.children, function(c){return c.textContent===last}); if (lb) lb.click();
+  var tec = $("#tec");
+  tec.value = localStorage.getItem("palace_op") || "";
+  tec.oninput = function(){ var v = tec.value.toUpperCase().replace(/[^A-ZÑ]/g, "").slice(0, 4); if (tec.value !== v) tec.value = v; state.op = v || null; if (v) localStorage.setItem("palace_op", v); };
+  state.op = tec.value || null;
 }
 function setRonda(v){ state.ronda=v; [].forEach.call($("#ronda").children,function(b){b.classList.toggle("on", b.dataset.v===v)}); }
 $("#ronda").addEventListener("click", function(e){ if(e.target.dataset.v) setRonda(e.target.dataset.v); });
@@ -203,7 +199,7 @@ function labelOf(k){ var pr = PARAMS.find(function(x){return x.k===k}); return p
 function collect(){
   var fecha = $("#fecha").value, hora = $("#hora").value, obs = $("#obs").value.trim();
   if (!fecha || !hora) return {err:"Falta fecha u hora."};
-  if (!state.op) return {err:"Seleccione el operario."};
+  if (!state.op || state.op.length < 2) return {err:"Escriba las iniciales del técnico (2 a 4 letras)."};
   var regs = [], vacios = 0, bad = false;
   [].forEach.call(document.querySelectorAll("#puntos .card"), function(card){
     var r = {id: fecha+"_"+state.ronda+"_"+card.dataset.punto, fecha:fecha, hora:hora, ronda:state.ronda, operario:state.op, punto:card.dataset.punto, habitacion:"", observaciones:""};

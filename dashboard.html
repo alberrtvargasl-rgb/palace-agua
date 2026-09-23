@@ -224,7 +224,7 @@ function renderStats(regs){
 
 function renderLast(last){
   if (!last){ $("#last").innerHTML = ""; $("#lastTitle").textContent = "Última ronda: sin datos"; return; }
-  $("#lastTitle").textContent = "Última ronda por punto · "+lbl(last)+" "+(last.hora||"")+" · Operario "+(last.operario||"—");
+  $("#lastTitle").textContent = "Última ronda por punto · "+lbl(last)+" "+(last.hora||"")+" · Técnico "+(last.operario||"—");
   var keys = ["ph","cl_libre","conductividad","tds","temp_agua","temp_ac"];
   var h = '<tr><th>Punto</th><th>Hab.</th>'+keys.map(function(k){return '<th class="num">'+PARAMS[k]+'</th>'}).join("")+'<th>Estado</th><th>Obs.</th></tr>';
   data.puntos.slice().sort(function(a,b){return (+a.orden)-(+b.orden)}).forEach(function(p){
