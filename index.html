@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B5FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Palace Agua">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Registro de parámetros · Hotel Palace RD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F5F2;--card:#FFFFFF;--ink:#1B1F1D;--muted:#5F6B66;--line:#DDE3E0;--brand:#0B5FA5;--brand-dark:#084A80;--ok:#067647;--warn:#B54708;--bad:#B42318;--warn-bg:#FFF8F1;--bad-bg:#FFF5F4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.35}
+input,button,select,textarea{font-family:inherit}
+input[type=number],input[type=text],input[type=date],input[type=time],textarea{width:100%;height:44px;border:1px solid #C7CFCB;border-radius:8px;padding:0 12px;font-size:18px;background:#fff;color:var(--ink);font-family:'IBM Plex Mono',monospace}
+textarea{height:64px;padding:8px 12px;font-family:inherit;font-size:15px;resize:vertical}
+input.warn{border:2px solid var(--warn);background:var(--warn-bg);color:var(--warn)}
+input.bad{border:2px solid var(--bad);background:var(--bad-bg);color:var(--bad)}
+header{background:var(--brand);color:#fff;padding:14px 16px 14px;position:sticky;top:0;z-index:5}
+.hrow{display:flex;align-items:center;gap:12px}
+.hrow img{width:46px;height:46px;border-radius:8px;background:#fff;object-fit:contain;padding:2px}
+.kicker{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.85}
+h1{margin:0;font-size:20px;font-weight:700}
+.badge{margin-left:auto;font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--ok);white-space:nowrap}
+.badge.off{background:var(--warn)}
+.badge.demo{background:#6B21A8}
+main{padding:14px 14px 40px;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.card h2 small{font-size:11px;color:var(--muted);font-weight:600}
+label{font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;height:44px;border-radius:10px;border:1px solid #C7CFCB;background:#fff;color:var(--ink);font-weight:600;font-size:15px}
+.seg button.on{border:2px solid var(--brand);background:var(--brand);color:#fff;font-weight:700}
+.msg{font-size:12px;font-weight:600;min-height:0}
+.msg.bad{color:var(--bad)}.msg.warn{color:var(--warn)}.msg.ok{color:var(--ok)}
+.primary{height:52px;border-radius:12px;border:0;background:var(--brand);color:#fff;font-weight:700;font-size:17px;width:100%}
+.primary:disabled{opacity:.5}
+.ghost{height:40px;border-radius:10px;border:1px solid #C7CFCB;background:#fff;color:var(--ink);font-weight:600;font-size:13px}
+.hint{font-size:12px;color:var(--muted);text-align:center}
+.queue{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1B1F1D;color:#fff;padding:12px 16px;border-radius:10px;font-size:14px;max-width:90%;display:none;z-index:9}
+a{color:var(--brand)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <img src="logo.png" alt="Industrias Islas">
+    <div>
+      <div class="kicker">Hotel Palace RD · Agua potable</div>
+      <h1>Registro de parámetros</h1>
+    </div>
+    <div class="badge" id="badge">Conectado</div>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="grid2">
+      <div><label for="fecha">Fecha de la toma</label><input type="date" id="fecha"></div>
+      <div><label for="hora">Hora</label><input type="time" id="hora"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Operario</label><div class="seg" id="ops"></div></div>
+      <div><label>Ronda</label><div class="seg" id="ronda"><button data-v="AM">AM</button><button data-v="PM">PM</button></div></div>
+    </div>
+  </div>
+
+  <div id="puntos"></div>
+
+  <div class="card">
+    <label for="obs">Observaciones (opcional)</label>
+    <textarea id="obs" placeholder="Ej.: se ajustó dosificación de cloro"></textarea>
+  </div>
+
+  <button class="primary" id="enviar">Guardar y enviar</button>
+  <div class="hint">Sin internet se guarda en el celular y se envía solo al volver la señal.</div>
+  <div class="card" id="qcard" style="display:none">
+    <div class="queue" id="qtxt"></div>
+    <button class="ghost" id="reintentar">Reintentar envío ahora</button>
+  </div>
+  <div class="hint"><a href="dashboard.html">Ver dashboard</a></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ CONFIGURACIÓN ============ */
+// Pega aquí la URL de la aplicación web de Apps Script (termina en /exec). Vacía = modo demostración (no envía nada).
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4RdOM4Hw5lZBIWE6-aKPmcyukDBnsft7Nu3mBMe9IIqOebUATDf5fY6L08Re_tTOt-g/exec";
+/* ====================================== */
+
+var DEFAULT_CFG = {
+  operarios:[{codigo:"CH",nombre:"Cintia Hernández",activo:1},{codigo:"MA",nombre:"Marialis",activo:1}],
+  puntos:[
+    {codigo:"TANQUE_1",nombre:"Tanque ADT #1",tipo:"tanque",tiene_ph:0,tiene_cl:1,tiene_cond:0,tiene_tds:0,tiene_temp:0,tiene_temp_ac:0,pide_habitacion:0,orden:1},
+    {codigo:"TANQUE_2",nombre:"Tanque ADT #2",tipo:"tanque",tiene_ph:0,tiene_cl:1,tiene_cond:0,tiene_tds:0,tiene_temp:0,tiene_temp_ac:0,pide_habitacion:0,orden:2},
+    {codigo:"PODIUM",nombre:"Baño Podium 1",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:0,pide_habitacion:0,orden:3},
+    {codigo:"CC_INT",nombre:"CC Interior",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:1,pide_habitacion:0,orden:4},
+    {codigo:"CC_EXT",nombre:"CC Exterior",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:0,pide_habitacion:0,orden:5},
+    {codigo:"CASA_CLUB",nombre:"Casa Club",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:0,pide_habitacion:0,orden:6},
+    {codigo:"MACAO",nombre:"Torre Macao",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:1,pide_habitacion:1,orden:7},
+    {codigo:"BACHATA",nombre:"Torre Bachata",tipo:"uso",tiene_ph:1,tiene_cl:1,tiene_cond:1,tiene_tds:1,tiene_temp:1,tiene_temp_ac:1,pide_habitacion:1,orden:8}],
+  limites:[
+    {parametro:"cl_libre",tipo_punto:"tanque",min:0.30,max:1.00},{parametro:"cl_libre",tipo_punto:"uso",min:0.30,max:1.00},
+    {parametro:"ph",tipo_punto:"uso",min:6.5,max:8.5},{parametro:"temp_ac",tipo_punto:"uso",min:50,max:65},
+    {parametro:"conductividad",tipo_punto:"uso",min:300,max:1000},{parametro:"tds",tipo_punto:"uso",min:100,max:600},{parametro:"temp_agua",tipo_punto:"uso",min:15,max:35}]
+};
+var PARAMS = [
+  {k:"ph",flag:"tiene_ph",label:"pH",step:"0.1",plaus:"cond"},
+  {k:"cl_libre",flag:"tiene_cl",label:"Cl libre (ppm)",step:"0.01"},
+  {k:"conductividad",flag:"tiene_cond",label:"Conductividad (µS/cm)",step:"0.1",plaus:1},
+  {k:"tds",flag:"tiene_tds",label:"TDS (ppm)",step:"0.1",plaus:1},
+  {k:"temp_agua",flag:"tiene_temp",label:"T agua (°C)",step:"0.1",plaus:1},
+  {k:"temp_ac",flag:"tiene_temp_ac",label:"T agua caliente (°C)",step:"0.1"}
+];
+var PLAUS = {ph:[0,14],cl_libre:[0,5],conductividad:[50,3000],tds:[10,2000],temp_agua:[5,45],temp_ac:[20,80]};
+
+var cfg = DEFAULT_CFG, state = {op:null, ronda:null};
+var $ = function(s){return document.querySelector(s)};
+var DEMO = !SCRIPT_URL;
+
+function lim(param, tipo){
+  var l = cfg.limites.find(function(x){return x.parametro===param && x.tipo_punto===tipo}) ||
+          cfg.limites.find(function(x){return x.parametro===param});
+  return l ? {min:+l.min, max:+l.max} : null;
+}
+function toast(t, ms){ var e=$("#toast"); e.textContent=t; e.style.display="block"; clearTimeout(e._t); e._t=setTimeout(function(){e.style.display="none"}, ms||3000); }
+function pad(n){return (n<10?"0":"")+n}
+
+function initHeader(){
+  var d = new Date();
+  $("#fecha").value = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  $("#hora").value = pad(d.getHours())+":"+pad(d.getMinutes());
+  setRonda(d.getHours() < 12 ? "AM" : "PM");
+  var ops = $("#ops"); ops.innerHTML = "";
+  cfg.operarios.filter(function(o){return +o.activo!==0}).forEach(function(o){
+    var b = document.createElement("button"); b.textContent = o.codigo; b.title = o.nombre; b.type="button";
+    b.onclick = function(){ state.op = o.codigo; localStorage.setItem("palace_op", o.codigo); [].forEach.call(ops.children,function(c){c.classList.toggle("on", c===b)}); };
+    ops.appendChild(b);
+  });
+  var last = localStorage.getItem("palace_op");
+  var lb = [].find.call(ops.children, function(c){return c.textContent===last}); if (lb) lb.click();
+}
+function setRonda(v){ state.ronda=v; [].forEach.call($("#ronda").children,function(b){b.classList.toggle("on", b.dataset.v===v)}); }
+$("#ronda").addEventListener("click", function(e){ if(e.target.dataset.v) setRonda(e.target.dataset.v); });
+
+function buildPuntos(){
+  var wrap = $("#puntos"); wrap.innerHTML = "";
+  var pts = cfg.puntos.slice().sort(function(a,b){return (+a.orden)-(+b.orden)});
+  var uso = pts.filter(function(p){return p.tipo!=="tanque"});
+  pts.forEach(function(p, i){
+    var card = document.createElement("div"); card.className="card"; card.dataset.punto=p.codigo;
+    var n = uso.indexOf(p);
+    card.innerHTML = '<h2>'+p.nombre+(n>=0?'<small>'+(n+1)+' de '+uso.length+' puntos</small>':'<small>'+p.tipo+'</small>')+'</h2>';
+    if (+p.pide_habitacion){
+      card.innerHTML += '<div><label>Habitación muestreada</label><input type="text" inputmode="numeric" data-k="habitacion" placeholder="N°"></div>';
+    }
+    var g = document.createElement("div"); g.className="grid2";
+    PARAMS.forEach(function(pr){
+      if (!+p[pr.flag]) return;
+      var d = document.createElement("div");
+      d.innerHTML = '<label>'+pr.label+'</label><input type="number" inputmode="decimal" step="'+pr.step+'" data-k="'+pr.k+'">';
+      g.appendChild(d);
+    });
+    card.appendChild(g);
+    var m = document.createElement("div"); m.className="msg"; card.appendChild(m);
+    wrap.appendChild(card);
+  });
+  wrap.addEventListener("input", function(e){ if(e.target.dataset.k) validateCard(e.target.closest(".card")); });
+}
+
+function validateCard(card){
+  var p = cfg.puntos.find(function(x){return x.codigo===card.dataset.punto});
+  var msgs = [], level = "";
+  [].forEach.call(card.querySelectorAll("input[type=number]"), function(inp){
+    inp.classList.remove("warn","bad");
+    if (inp.value==="") return;
+    var v = parseFloat(inp.value), k = inp.dataset.k, pl = PLAUS[k];
+    if (isNaN(v) || (pl && (v<pl[0] || v>pl[1]))){
+      inp.classList.add("bad"); level="bad";
+      msgs.push(labelOf(k)+": valor imposible ("+inp.value+"). Revise el punto decimal.");
+      return;
+    }
+    var l = lim(k, p.tipo);
+    if (l && (v<l.min || v>l.max)){
+      inp.classList.add("warn"); if(level!=="bad") level="warn";
+      msgs.push(labelOf(k)+" fuera de rango ("+l.min+"–"+l.max+"). Se registra igual y queda marcado.");
+    }
+  });
+  var m = card.querySelector(".msg"); m.className="msg "+level; m.textContent = msgs.join(" ");
+  return level;
+}
+function labelOf(k){ var pr = PARAMS.find(function(x){return x.k===k}); return pr?pr.label.replace(/\s*\(.*\)/,""):k; }
+
+function collect(){
+  var fecha = $("#fecha").value, hora = $("#hora").value, obs = $("#obs").value.trim();
+  if (!fecha || !hora) return {err:"Falta fecha u hora."};
+  if (!state.op) return {err:"Seleccione el operario."};
+  var regs = [], vacios = 0, bad = false;
+  [].forEach.call(document.querySelectorAll("#puntos .card"), function(card){
+    var r = {id: fecha+"_"+state.ronda+"_"+card.dataset.punto, fecha:fecha, hora:hora, ronda:state.ronda, operario:state.op, punto:card.dataset.punto, habitacion:"", observaciones:""};
+    var filled = 0;
+    [].forEach.call(card.querySelectorAll("input"), function(inp){
+      if (inp.value==="") return;
+      r[inp.dataset.k] = inp.type==="number" ? parseFloat(inp.value) : inp.value.trim();
+      if (inp.type==="number") filled++;
+    });
+    if (validateCard(card)==="bad") bad = true;
+    if (!filled){ vacios++; return; }
+    regs.push(r);
+  });
+  if (bad) return {err:"Hay valores imposibles marcados en rojo. Corríjalos antes de enviar."};
+  if (!regs.length) return {err:"No hay ningún valor ingresado."};
+  if (obs) regs[0].observaciones = obs;
+  return {regs:regs, vacios:vacios};
+}
+
+/* ---------- Cola local y envío ---------- */
+function queue(){ try{return JSON.parse(localStorage.getItem("palace_queue")||"[]")}catch(e){return []} }
+function saveQueue(q){ localStorage.setItem("palace_queue", JSON.stringify(q)); renderQueue(); }
+function renderQueue(){
+  var q = queue(), c = $("#qcard");
+  c.style.display = q.length ? "" : "none";
+  $("#qtxt").textContent = q.length ? q.length+" ronda(s) pendiente(s) de enviar: "+q.map(function(b){return b.fecha+" "+b.ronda}).join(", ") : "";
+  var b = $("#badge");
+  if (DEMO){ b.textContent="Modo demo · no envía"; b.className="badge demo"; return; }
+  b.textContent = navigator.onLine ? (q.length? "Conectado · "+q.length+" pendiente" : "Conectado") : "Sin señal · "+q.length+" pendiente";
+  b.className = "badge" + (navigator.onLine ? "" : " off");
+}
+var sending = false;
+function flush(){
+  if (sending || DEMO || !navigator.onLine) return;
+  var q = queue(); if (!q.length) return;
+  sending = true;
+  var lote = q[0];
+  fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({registros: lote.registros}), redirect:"follow"})
+    .then(function(r){return r.json()})
+    .then(function(res){
+      if (!res.ok) throw new Error(res.error||"error");
+      var q2 = queue(); q2.shift(); saveQueue(q2);
+      toast("Enviado: "+lote.fecha+" "+lote.ronda+" ("+res.insertadas+" registros"+(res.duplicadas?", "+res.duplicadas+" ya existían":"")+")", 4000);
+      sending = false; flush();
+    })
+    .catch(function(err){ sending = false; renderQueue(); toast("No se pudo enviar todavía. Queda guardado en el celular.", 3500); });
+}
+$("#enviar").onclick = function(){
+  var c = collect();
+  if (c.err){ toast(c.err, 3500); return; }
+  if (c.vacios && !confirm(c.vacios+" punto(s) quedaron sin valores. ¿Enviar de todos modos?")) return;
+  var q = queue(); q.push({fecha:c.regs[0].fecha, ronda:c.regs[0].ronda, registros:c.regs, creado:new Date().toISOString()}); saveQueue(q);
+  [].forEach.call(document.querySelectorAll("#puntos input, #obs"), function(i){ i.value=""; i.classList.remove("warn","bad"); });
+  [].forEach.call(document.querySelectorAll("#puntos .msg"), function(m){ m.textContent=""; });
+  window.scrollTo({top:0, behavior:"smooth"});
+  if (DEMO){ toast("Modo demo: ronda guardada solo en este celular. Configure SCRIPT_URL para enviar.", 4000); return; }
+  toast(navigator.onLine ? "Guardado. Enviando…" : "Guardado sin señal. Se enviará al volver la conexión.", 3000);
+  flush();
+};
+$("#reintentar").onclick = flush;
+window.addEventListener("online", function(){ renderQueue(); flush(); });
+window.addEventListener("offline", renderQueue);
+setInterval(flush, 60000);
+
+/* ---------- Configuración desde el Sheet (con caché para uso sin señal) ---------- */
+function loadConfig(){
+  try{ var c = JSON.parse(localStorage.getItem("palace_cfg")||"null"); if (c && c.puntos && c.puntos.length) cfg = c; }catch(e){}
+  render();
+  if (DEMO || !navigator.onLine) return;
+  fetch(SCRIPT_URL+"?action=config", {redirect:"follow"}).then(function(r){return r.json()}).then(function(c){
+    if (c && c.puntos && c.puntos.length && JSON.stringify(c) !== JSON.stringify(cfg)){ cfg = c; localStorage.setItem("palace_cfg", JSON.stringify(c)); render(); }
+  }).catch(function(){});
+}
+function render(){ initHeader(); buildPuntos(); renderQueue(); }
+loadConfig();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>

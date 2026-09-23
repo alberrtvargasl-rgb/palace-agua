@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B5FA5">
+<link rel="icon" href="icon-192.png">
+<title>Dashboard agua potable · Hotel Palace RD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F5F2;--card:#FFFFFF;--ink:#1B1F1D;--muted:#5F6B66;--line:#DDE3E0;--brand:#0B5FA5;--ok:#067647;--warn:#B54708;--bad:#B42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:14px}
+.n{font-family:'IBM Plex Mono',monospace;font-weight:500}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 20px}
+.wrap{max-width:1280px;margin:0 auto}
+.hrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hrow img{width:52px;height:52px;object-fit:contain}
+.kicker{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-size:22px;font-weight:700}
+.right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.seg{display:flex;gap:4px}
+.seg button,.chip{height:34px;padding:0 12px;border-radius:8px;border:1px solid #C7CFCB;background:#fff;color:var(--ink);font-weight:600;font-size:13px;font-family:inherit;cursor:pointer}
+.seg button.on,.chip.on{border-color:var(--brand);background:var(--brand);color:#fff}
+.chip{height:30px;padding:0 10px;font-size:12px;border-radius:999px}
+.stamp{font-size:12px;color:var(--muted);text-align:right;line-height:1.3}
+main{padding:18px 20px 40px;display:flex;flex-direction:column;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-left:6px solid var(--muted);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.kpi .t{font-size:12px;color:var(--muted);font-weight:600}
+.kpi .v{font-size:30px;font-weight:600}
+.kpi .v small{font-size:13px;color:var(--muted);font-weight:500}
+.kpi .s{font-size:12px;font-weight:600}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.kpi.ok{border-left-color:var(--ok)}.kpi.warn{border-left-color:var(--warn)}.kpi.bad{border-left-color:var(--bad)}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media (max-width:900px){.row{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h2{margin:0;font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+select{height:34px;border-radius:8px;border:1px solid #C7CFCB;background:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:0 8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;white-space:nowrap}
+td,th{font-size:13px;padding:7px 10px;text-align:left;border-bottom:1px solid #E6EAE8}
+th{color:var(--muted);font-weight:600;font-size:12px}
+td.num,th.num{text-align:right}
+#stats td,#stats th{padding:7px 6px}
+.b{font-weight:600}
+.foot{font-size:12px;color:var(--muted)}
+.banner{background:#F3E8FF;color:#6B21A8;border:1px solid #D8B4FE;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600}
+.err{background:#FFF5F4;color:var(--bad);border:1px solid #F5C2C0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600}
+a{color:var(--brand)}
+</style>
+</head>
+<body>
+<header><div class="wrap hrow">
+  <img src="logo.png" alt="Industrias Islas">
+  <div><div class="kicker">Hotel Palace RD · Agua potable · Industrias Islas</div><h1>Parámetros de calidad</h1></div>
+  <div class="right">
+    <div class="seg" id="periodo"><button data-d="7">7 días</button><button data-d="30" class="on">30 días</button><button data-d="90">90 días</button></div>
+    <div class="stamp" id="stamp">Cargando…</div>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div id="aviso"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="row">
+    <div class="card">
+      <h2><span>Tendencia</span>
+        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="param"></select>
+        </span></h2>
+      <div class="chips" id="chips"></div>
+      <div id="chart" style="position:relative;width:100%;min-height:300px"></div>
+      <div class="foot">Línea punteada: límites de la hoja <b>Limites</b>. Toque un punto de la gráfica para ver el valor exacto.</div>
+    </div>
+    <div class="card">
+      <h2><span>Estadística · <span id="statParam"></span></span><span class="foot" id="statN"></span></h2>
+      <div class="tw"><table id="stats"></table></div>
+      <div class="foot">Fuera = % de lecturas fuera del rango mín–máx.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span id="lastTitle">Última ronda</span><button class="chip" id="csv">Descargar CSV del período</button></h2>
+    <div class="tw"><table id="last"></table></div>
+  </div>
+  <div class="foot"><a href="index.html">Ir al formulario de registro</a> · Se actualiza solo cada 60 s.</div>
+</main>
+
+<script>
+/* ============ CONFIGURACIÓN ============ */
+// Misma URL /exec que en index.html. Vacía = modo demostración con los 4 días del Word (demo.json).
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4RdOM4Hw5lZBIWE6-aKPmcyukDBnsft7Nu3mBMe9IIqOebUATDf5fY6L08Re_tTOt-g/exec";
+/* ====================================== */
+var DEMO = !SCRIPT_URL;
+var PARAMS = {ph:"pH", cl_libre:"Cl libre (ppm)", conductividad:"Conductividad (µS/cm)", tds:"TDS (ppm)", temp_agua:"T agua (°C)", temp_ac:"T agua caliente (°C)"};
+var COLORS = ["#0B5FA5","#7C3AED","#0F766E","#B54708","#B42318","#4D7C0F","#9D174D","#1D4ED8"];
+var data = null, dias = 30, param = "cl_libre", selPts = null, lastFetch = null;
+window.addEventListener("resize", function(){ if (data) render(); });
+var $ = function(s){return document.querySelector(s)};
+
+function lim(p, tipo){
+  var L = data.limites, l = L.find(function(x){return x.parametro===p && x.tipo_punto===tipo}) || L.find(function(x){return x.parametro===p});
+  return l ? {min:+l.min, max:+l.max} : null;
+}
+function ptName(c){ var p = data.puntos.find(function(x){return x.codigo===c}); return p ? p.nombre : c; }
+function ptTipo(c){ var p = data.puntos.find(function(x){return x.codigo===c}); return p ? p.tipo : "uso"; }
+function num(v){ return (v===""||v===null||v===undefined) ? null : +v; }
+function fmt(v, d){ return v===null||isNaN(v) ? "—" : (+v).toFixed(d===undefined?2:d); }
+function estado(p, v, tipo){ if (v===null) return ""; var l = lim(p,tipo); if (!l) return ""; return (v<l.min||v>l.max) ? (p==="cl_libre"||p==="ph" ? "bad":"warn") : "ok"; }
+function rondaKey(r){ return r.fecha+"_"+r.ronda; }
+function lbl(r){ var f = String(r.fecha).slice(8,10)+"/"+String(r.fecha).slice(5,7); return f+" "+r.ronda; }
+
+function filtered(){
+  var desde = new Date(); desde.setDate(desde.getDate()-dias);
+  var ds = desde.toISOString().slice(0,10);
+  return data.registros.filter(function(r){ return String(r.fecha) >= ds; });
+}
+function rondas(regs){
+  var m = {}; regs.forEach(function(r){ var k = rondaKey(r); (m[k] = m[k]||[]).push(r); });
+  return Object.keys(m).sort(function(a,b){ return a<b?-1:1; }).map(function(k){ return {key:k, regs:m[k], fecha:m[k][0].fecha, ronda:m[k][0].ronda, hora:m[k][0].hora, operario:m[k][0].operario}; });
+}
+
+function render(){
+  var regs = filtered(), rs = rondas(regs), last = rs[rs.length-1];
+  $("#stamp").innerHTML = (last ? "Última ronda: "+lbl(last)+" "+(last.hora||"")+" · "+(last.operario||"")+"<br>" : "Sin datos en el período<br>") + "Actualizado hace <span id='ago'>0</span> s";
+  renderKpis(last);
+  renderChart(rs);
+  renderStats(regs);
+  renderLast(last);
+}
+
+function kpi(cls, t, v, unit, s){ return '<div class="kpi '+cls+'"><div class="t">'+t+'</div><div class="v n">'+v+(unit?' <small>'+unit+'</small>':'')+'</div><div class="s '+cls+'">'+s+'</div></div>'; }
+function renderKpis(last){
+  var h = "";
+  if (!last){ $("#kpis").innerHTML = ""; return; }
+  var all = rondas(filtered());
+  ["TANQUE_1","TANQUE_2"].forEach(function(c){
+    var r = last.regs.find(function(x){return x.punto===c}); var v = r ? num(r.cl_libre) : null;
+    var l = lim("cl_libre","tanque"); var e = estado("cl_libre", v, "tanque");
+    var fuera = 0, n = 0; all.forEach(function(rr){ var q = rr.regs.find(function(x){return x.punto===c}); var vv = q?num(q.cl_libre):null; if (vv!==null){ n++; if (vv<l.min||vv>l.max) fuera++; } });
+    h += kpi(e, ptName(c)+" · Cl libre", fmt(v), "ppm", v===null ? "Sin lectura en la última ronda" : (e==="ok" ? "En rango "+l.min+"–"+l.max : (v<l.min?"Bajo mínimo ":"Sobre máximo ")+(v<l.min?l.min:l.max)+" · "+fuera+" de "+n+" rondas fuera"));
+  });
+  var uso = last.regs.filter(function(x){ return ptTipo(x.punto)==="uso"; });
+  var cls = uso.map(function(x){return num(x.cl_libre)}).filter(function(v){return v!==null});
+  if (cls.length){ var mn=Math.min.apply(null,cls), mx=Math.max.apply(null,cls), l=lim("cl_libre","uso"), out=cls.filter(function(v){return v<l.min||v>l.max}).length;
+    h += kpi(out?"bad":"ok", "Cl libre puntos de uso (prom.)", fmt(cls.reduce(function(a,b){return a+b},0)/cls.length), "ppm", "Rango "+fmt(mn)+"–"+fmt(mx)+" · "+(cls.length-out)+" de "+cls.length+" en rango"); }
+  var phs = uso.map(function(x){return num(x.ph)}).filter(function(v){return v!==null});
+  if (phs.length){ var l2=lim("ph","uso"), out2=phs.filter(function(v){return v<l2.min||v>l2.max}).length;
+    h += kpi(out2?"bad":"ok", "pH puntos de uso (prom.)", fmt(phs.reduce(function(a,b){return a+b},0)/phs.length,1), "", "Rango "+fmt(Math.min.apply(null,phs),1)+"–"+fmt(Math.max.apply(null,phs),1)+" · límite "+l2.min+"–"+l2.max); }
+  var tac = uso.filter(function(x){return num(x.temp_ac)!==null});
+  if (tac.length){ var mnr = tac.reduce(function(a,b){return num(b.temp_ac)<num(a.temp_ac)?b:a}); var v3=num(mnr.temp_ac), l3=lim("temp_ac","uso"), e3=estado("temp_ac",v3,"uso");
+    h += kpi(e3, "T agua caliente (mín. de la ronda)", fmt(v3,1), "°C", ptName(mnr.punto)+(mnr.habitacion?" "+mnr.habitacion:"")+" · objetivo ≥ "+l3.min+" °C"); }
+  $("#kpis").innerHTML = h;
+}
+
+function renderChart(rs){
+  var pts = data.puntos.slice().sort(function(a,b){return (+a.orden)-(+b.orden)}).filter(function(p){ return rs.some(function(r){ return r.regs.some(function(x){ return x.punto===p.codigo && num(x[param])!==null; }); }); });
+  if (!selPts) selPts = {};
+  var chips = $("#chips"); chips.innerHTML = "";
+  pts.forEach(function(p,i){
+    if (selPts[param]===undefined) selPts[param] = {};
+    if (selPts[param][p.codigo]===undefined) selPts[param][p.codigo] = (param==="cl_libre") ? (p.tipo==="tanque") : true;
+    var b = document.createElement("button"); b.className = "chip"+(selPts[param][p.codigo]?" on":""); b.textContent = p.nombre; b.style.borderColor = COLORS[i%COLORS.length]; if (selPts[param][p.codigo]) b.style.background = COLORS[i%COLORS.length];
+    b.onclick = function(){ selPts[param][p.codigo] = !selPts[param][p.codigo]; renderChart(rs); };
+    chips.appendChild(b);
+  });
+  var labels = rs.map(lbl);
+  var ds = pts.map(function(p,i){ return {label:p.nombre, borderColor:COLORS[i%COLORS.length], backgroundColor:COLORS[i%COLORS.length], tension:0.2, spanGaps:true, pointRadius:4, borderWidth:2.5, hidden:!selPts[param][p.codigo],
+    data: rs.map(function(r){ var x = r.regs.find(function(q){return q.punto===p.codigo}); return x ? num(x[param]) : null; }) }; });
+  var tipos = pts.filter(function(p){return selPts[param][p.codigo]}).map(function(p){return p.tipo});
+  var l = lim(param, tipos.indexOf("uso")>=0 ? "uso" : "tanque");
+  if (l && ["ph","cl_libre","temp_ac"].indexOf(param)>=0){
+    ds.push({label:"Mín "+l.min, data:labels.map(function(){return l.min}), borderColor:"#B42318", borderDash:[6,5], pointRadius:0, borderWidth:1.5, fill:false});
+    if (param!=="temp_ac") ds.push({label:"Máx "+l.max, data:labels.map(function(){return l.max}), borderColor:"#B42318", borderDash:[6,5], pointRadius:0, borderWidth:1.5, fill:false});
+  }
+  drawChart(labels, ds, rs);
+}
+
+/* Gráfica de líneas en SVG puro (sin dependencias externas: funciona sin internet) */
+function drawChart(labels, ds, rs){
+  var box = $("#chart"), W = Math.max(320, box.clientWidth), H = 300, ml = 52, mr = 40, mt = 14, mb = 44;
+  var series = ds.filter(function(d){return !d.hidden && !d.borderDash});
+  var vals = []; series.forEach(function(d){ d.data.forEach(function(v){ if (v!==null && !isNaN(v)) vals.push(v); }); });
+  if (!vals.length){ box.innerHTML = '<div class="foot" style="padding:40px;text-align:center">Sin datos para este parámetro en el período.</div>'; return; }
+  var dmn = Math.min.apply(null, vals), dmx = Math.max.apply(null, vals); if (dmn===dmx){ dmn -= 1; dmx += 1; }
+  var span = dmx-dmn, mn = dmn, mx = dmx;
+  // Las líneas de límite entran en la escala solo si están cerca de los datos; si no, se omiten para no aplastar la curva.
+  var vis = series.slice();
+  ds.filter(function(d){return d.borderDash}).forEach(function(d){ var v = d.data[0]; if (v >= dmn-span && v <= dmx+span){ vis.push(d); mn = Math.min(mn,v); mx = Math.max(mx,v); } });
+  var pad = (mx-mn)*0.12; mn -= pad; mx += pad;
+  var n = labels.length, x = function(i){ return n===1 ? (ml+W-mr)/2 : ml + (W-ml-mr)*i/(n-1); }, y = function(v){ return mt + (H-mt-mb)*(1-(v-mn)/(mx-mn)); };
+  var g = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" style="font-family:inherit;display:block">';
+  var ticks = 5; for (var t=0;t<=ticks;t++){ var v = mn+(mx-mn)*t/ticks, yy = y(v); g += '<line x1="'+ml+'" y1="'+yy+'" x2="'+(W-mr)+'" y2="'+yy+'" stroke="#E6EAE8"/><text x="'+(ml-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#5F6B66" font-family="IBM Plex Mono,monospace">'+v.toFixed(param==="cl_libre"?2:1)+'</text>'; }
+  var step = Math.ceil(n/Math.max(1,Math.floor((W-ml-mr)/70)));
+  var lastX = -1e9; labels.forEach(function(l,i){ if (i%step && !(i===n-1 && x(i)-lastX >= 64)) return; lastX = x(i); g += '<text x="'+x(i)+'" y="'+(H-mb+18)+'" text-anchor="middle" font-size="11" fill="#5F6B66">'+l+'</text>'; });
+  vis.forEach(function(d){
+    var pts = d.data.map(function(v,i){ return v===null||isNaN(v) ? null : [x(i), y(v)]; });
+    var path = "", pen = false; pts.forEach(function(p){ if (!p){ return; } path += (pen?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)+" "; pen = true; });
+    g += '<path d="'+path+'" fill="none" stroke="'+d.borderColor+'" stroke-width="'+(d.borderWidth||2.5)+'"'+(d.borderDash?' stroke-dasharray="'+d.borderDash.join(" ")+'"':'')+' stroke-linejoin="round"/>';
+    if (!d.borderDash) pts.forEach(function(p,i){ if (!p) return; var r = rs[i]; g += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(d.pointRadius||4)+'" fill="'+d.borderColor+'"><title>'+d.label+' · '+labels[i]+' '+(r.hora||'')+' · '+(r.operario||'')+': '+d.data[i]+'</title></circle>'; });
+    else g += '<text x="'+(W-mr)+'" y="'+(y(d.data[0])-5)+'" text-anchor="end" font-size="11" fill="'+d.borderColor+'" font-weight="600">'+d.label+'</text>';
+  });
+  g += '</svg>'; box.innerHTML = g;
+}
+
+function renderStats(regs){
+  $("#statParam").textContent = PARAMS[param];
+  var pts = data.puntos.slice().sort(function(a,b){return (+a.orden)-(+b.orden)});
+  var h = '<tr><th>Punto</th><th class="num">Prom.</th><th class="num">Mín</th><th class="num">Máx</th><th class="num">Desv.</th><th class="num">Fuera</th></tr>';
+  var total = 0;
+  pts.forEach(function(p){
+    var vs = regs.filter(function(r){return r.punto===p.codigo}).map(function(r){return num(r[param])}).filter(function(v){return v!==null});
+    if (!vs.length) return; total += vs.length;
+    var m = vs.reduce(function(a,b){return a+b},0)/vs.length, sd = vs.length>1 ? Math.sqrt(vs.reduce(function(a,b){return a+(b-m)*(b-m)},0)/(vs.length-1)) : 0;
+    var l = lim(param, p.tipo), out = l ? vs.filter(function(v){return v<l.min||v>l.max}).length : 0, pct = l ? Math.round(100*out/vs.length) : null;
+    var d = (param==="ph"||param==="temp_agua"||param==="temp_ac") ? 1 : (param==="cl_libre" ? 2 : 1);
+    h += '<tr><td>'+p.nombre+'</td><td class="num n">'+fmt(m,d)+'</td><td class="num n">'+fmt(Math.min.apply(null,vs),d)+'</td><td class="num n">'+fmt(Math.max.apply(null,vs),d)+'</td><td class="num n">'+fmt(sd,d)+'</td><td class="num n b '+(pct===null?"":(pct>0?"bad":"ok"))+'">'+(pct===null?"—":pct+" %")+'</td></tr>';
+  });
+  $("#stats").innerHTML = h; $("#statN").textContent = total+" lecturas en "+dias+" días";
+}
+
+function renderLast(last){
+  if (!last){ $("#last").innerHTML = ""; $("#lastTitle").textContent = "Última ronda: sin datos"; return; }
+  $("#lastTitle").textContent = "Última ronda por punto · "+lbl(last)+" "+(last.hora||"")+" · Operario "+(last.operario||"—");
+  var keys = ["ph","cl_libre","conductividad","tds","temp_agua","temp_ac"];
+  var h = '<tr><th>Punto</th><th>Hab.</th>'+keys.map(function(k){return '<th class="num">'+PARAMS[k]+'</th>'}).join("")+'<th>Estado</th><th>Obs.</th></tr>';
+  data.puntos.slice().sort(function(a,b){return (+a.orden)-(+b.orden)}).forEach(function(p){
+    var r = last.regs.find(function(x){return x.punto===p.codigo}); if (!r) return;
+    var flags = [];
+    h += '<tr><td>'+p.nombre+'</td><td class="n">'+(r.habitacion||"—")+'</td>'+keys.map(function(k){
+      var v = num(r[k]); var e = estado(k, v, p.tipo); if (e==="bad"||e==="warn") flags.push({k:k,e:e});
+      return '<td class="num n '+(e==="ok"?"":e)+(e&&e!=="ok"?" b":"")+'">'+fmt(v, k==="cl_libre"?2:1)+'</td>';
+    }).join("");
+    var st = flags.length ? flags.map(function(f){ var nm = {ph:"pH",cl_libre:"Cl",conductividad:"Cond.",tds:"TDS",temp_agua:"T",temp_ac:"T AC"}[f.k]; return '<span class="b '+f.e+'">'+nm+(num(r[f.k])<lim(f.k,p.tipo).min?" bajo":" alto")+'</span>'; }).join(", ") : '<span class="b ok">OK</span>';
+    h += '<td>'+st+'</td><td style="white-space:normal;max-width:260px;font-size:12px;color:#5F6B66">'+(r.observaciones||"")+'</td></tr>';
+  });
+  $("#last").innerHTML = h;
+}
+
+$("#periodo").addEventListener("click", function(e){ if (!e.target.dataset.d) return; dias = +e.target.dataset.d; [].forEach.call(this.children,function(b){b.classList.toggle("on", b===e.target)}); render(); });
+var sel = $("#param"); Object.keys(PARAMS).forEach(function(k){ var o = document.createElement("option"); o.value=k; o.textContent=PARAMS[k]; sel.appendChild(o); }); sel.value = param;
+sel.onchange = function(){ param = sel.value; render(); };
+$("#csv").onclick = function(){
+  var regs = filtered(); if (!regs.length) return;
+  var cols = ["id","fecha","hora","ronda","operario","punto","habitacion","ph","cl_libre","conductividad","tds","temp_agua","temp_ac","observaciones"];
+  var csv = cols.join(";")+"\n"+regs.map(function(r){ return cols.map(function(c){ var v = r[c]===undefined||r[c]===null?"":String(r[c]); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(";"); }).join("\n");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"})); a.download = "palace_agua_"+dias+"d.csv"; a.click();
+};
+
+function load(){
+  var url = DEMO ? "demo.json" : SCRIPT_URL+"?dias=120&t="+Date.now();
+  fetch(url, {redirect:"follow"}).then(function(r){return r.json()}).then(function(d){
+    if (!d.registros) throw new Error("respuesta sin registros");
+    data = d; lastFetch = Date.now();
+    $("#aviso").innerHTML = DEMO ? '<div class="banner">Modo demostración: muestra los 4 días del Word. Pegue la URL del Apps Script en SCRIPT_URL para ver datos en vivo.</div>' : "";
+    render();
+  }).catch(function(err){ $("#aviso").innerHTML = '<div class="err">No se pudieron cargar los datos ('+err.message+'). Revise SCRIPT_URL y la implementación del Apps Script.</div>'; });
+}
+setInterval(function(){ var a = $("#ago"); if (a && lastFetch) a.textContent = Math.round((Date.now()-lastFetch)/1000); }, 1000);
+setInterval(load, 60000);
+load();
+</script>
+</body>
+</html>
