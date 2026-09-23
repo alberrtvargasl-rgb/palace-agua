@@ -1,6 +1,6 @@
 // Service worker: guarda el formulario en el celular para que abra sin internet.
-var CACHE = "palace-agua-v1";
-var FILES = ["./", "./index.html", "./dashboard.html", "./logo.png", "./icon-192.png", "./icon-512.png", "./manifest.json"];
+var CACHE = "palace-agua-v2";
+var FILES = ["./", "./index.html", "./dashboard.html", "./logo.png", "./icon-192.png", "./icon-512.png", "./manifest.json", "./instalar.html"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function(){ return self.skipWaiting(); }));
 });
